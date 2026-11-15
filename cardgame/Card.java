@@ -61,6 +61,14 @@ public class Card {
         return status;
     }
 
+    public int getRetreatCost() {
+        return retreatCost;
+    }
+
+    public Map<String, Object[]> getMoves() {
+        return moves;
+    }
+    
     public int getEnergy() {
         return energy;
     }

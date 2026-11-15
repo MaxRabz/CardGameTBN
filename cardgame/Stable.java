@@ -16,14 +16,19 @@ public class Stable {
         Sleep,
         Confusion,
         Skip,
-        Poision,
+        Poison,
         None
     }
 
     public enum Effect {
         None,
         Backrow,
-        Condition,
+        Paralyze,
+        Burn,
+        Sleep,
+        Confusion,
+        Skip,
+        Poison,
         Double,
         Swap,
         Recoil,
