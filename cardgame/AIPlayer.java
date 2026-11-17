@@ -35,10 +35,10 @@ public class AIPlayer extends Player {
         this.removeActiveCard();
         if (this.getBenchCard(1) != null) {
             this.promoteBenchCardToActive(1);
-            this.setBenchCard(hand[1], 1, 1);
+            this.setBenchCard(this.hand[1], 1, 1);
         } else if (this.getBenchCard(2) != null) {
             this.promoteBenchCardToActive(2);
-            this.setBenchCard(hand[1], 2, 1);
+            this.setBenchCard(this.hand[1], 2, 1);
         }
         this.drawCard();
     }

@@ -1,5 +1,6 @@
 package cardgame;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 import cardgame.Stable.Effect;
@@ -52,9 +53,10 @@ public class Game {
 
     private void replaceDeadCard() {
         player.removeActiveCard();
-        System.out.println("Your active card has been defeated. Please select a new active card from your bench:");
-        System.out.println("1. " + player.getBenchCard(1).toString());
-        System.out.println("2. " + player.getBenchCard(2).toString());
+        printCards("Your bench:", new Card[] {player.getBenchCard(1), player.getBenchCard(2)},
+                new String[] {"1. " + cardName(player.getBenchCard(1)), "2. " + cardName(player.getBenchCard(2))});
+        printOptions("Your active card has been defeated. Select a new active card:",
+                "1. " + cardName(player.getBenchCard(1)), "2. " + cardName(player.getBenchCard(2)));
         int benchNumber = getLegitNumber(1, 2);
         if (benchNumber == 1) {
             player.promoteBenchCardToActive(1);
@@ -68,16 +70,22 @@ public class Game {
     }
 
     private void printHand() {
+        ArrayList<Card> cards = new ArrayList<>();
+        ArrayList<String> choices = new ArrayList<>();
         for (int i = 0; i < player.getHand().length; i++) {
-            if (player.getHand()[i] != null) {
-                System.out.println((i + 1) + ". \n" + player.getHand()[i].toString());
+            Card card = player.getHand()[i];
+            if (card != null) {
+                cards.add(card);
+                choices.add((i + 1) + ". " + card.getName());
             }
         }
+        printCards("Your hand:", cards.toArray(new Card[0]), choices.toArray(new String[0]));
     }
 
     private void pickNewBenchCard(int num) {
-        System.out.println("Your bench card has been defeated. Please select a new bench card from your hand:");
+        System.out.println("Your bench card has been defeated.");
         printHand();
+        System.out.println("Select a new bench card from your hand:");
         int handIndex = getLegitNumber(1, player.getHand().length) - 1;
         Card newBenchCard = player.getHand()[handIndex];
         player.setBenchCard(newBenchCard, num, handIndex);
@@ -85,16 +93,12 @@ public class Game {
 
     private void getAction() {
         System.out.println("Your active card is: \n" + player.getActiveCard().toString());
-        System.out.println("Your bench cards are: \n" + player.getBenchCard(1).toString() + "\n" + player.getBenchCard(2).toString());
-        System.out.println("Your hand is: ");
-        for (int i = 0; i < player.getHand().length; i++) {
-            if (player.getHand()[i] != null) {
-                System.out.println((i + 1) + ". " + player.getHand()[i].toString());
-            }
-        }
+        printCards("Your bench cards:", new Card[] {player.getBenchCard(1), player.getBenchCard(2)},
+                new String[] {"1.", "2."});
 
         System.out.println("Your opponent's active card is: \n" + opponent.getActiveCard().toString());
-        System.out.println("Your opponent's bench cards are: \n" + opponent.getBenchCard(1).toString() + "\n" + opponent.getBenchCard(2).toString());
+        printCards("Your opponent's bench cards:",
+                new Card[] {opponent.getBenchCard(1), opponent.getBenchCard(2)}, new String[] {"1.", "2."});
 
         int actions = turn.checkActions(player.getActiveCard());
         for (int i = 0; i < actions; i++) {
@@ -104,60 +108,69 @@ public class Game {
                 addEnergyToCard();
                 continue;
             }
-            System.out.println("Please select an action:");
-            System.out.println("1. Use Move");
-            System.out.println("2. Retreat");
-            System.out.println("3. Add Energy");
+            printOptions("Please select an action:", "1. Use Move", "2. Retreat", "3. Add Energy");
             int action = getLegitNumber(1, 3);
-            if (action == 1) {
-                System.out.println("Please select a move:");
-                Map<String, Object[]> moves = player.getActiveCard().getMoves();
-                int moveIndex = 0;
-                for (String moveName : moves.keySet()) {
-                    System.out.println((moveIndex + 1) + ". " + moveName);
-                    moveIndex++;
-                }
-                int selectedMove = getLegitNumber(1, moves.size()) - 1;
-                String moveName = new ArrayList<>(moves.keySet()).get(selectedMove);
-                boolean success = turn.useMove(moveName, player.getActiveCard(), opponent.getActiveCard());
-                if (!success) {
-                    System.out.println("Your move failed due to confusion!");
-                } else {
-                    System.out.println("You used " + moveName + " on " + opponent.getActiveCard().getName() + ".");
-                    if (moves.get(moveName)[2] == Effect.Backrow) {
-                        System.out.println("Please select a bench card to target:");
-                        System.out.println("1. " + opponent.getBenchCard(1).getName());
-                        System.out.println("2. " + opponent.getBenchCard(2).getName());
-                        int benchNumber = getLegitNumber(1, 2);
-                        Card targetCard = opponent.getBenchCard(benchNumber);
-                        targetCard.dealDamage((int) moves.get(moveName)[1], (Type) moves.get(moveName)[moves.get(moveName).length - 1], Condition.None);
-
-                    }
-                    if (moves.get(moveName)[2] == Effect.Swap) {
-                        System.out.println("Please select a bench card to swap with:");
-                        System.out.println("1. " + player.getBenchCard(1).getName());
-                        System.out.println("2. " + player.getBenchCard(2).getName());
-                        int benchNumber = getLegitNumber(1, 2);
-                        player.swapActiveWithBench(benchNumber);
-                    }
-                }
-            } else if (action == 2) {
-                System.out.println("Please select a bench card to swap with:");
-                System.out.println("1. " + player.getBenchCard(1).getName());
-                System.out.println("2. " + player.getBenchCard(2).getName());
-                int benchNumber = getLegitNumber(1, 2);
-                turn.retreat(player.getActiveCard(), player, benchNumber);
-            } else if (action == 3) {
-                addEnergyToCard();
+            try {
+                playAction(action);
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                i--;
+                continue;
             }
         }
     }
 
+    private void playAction(int action) {
+        if (action == 1) {
+            Map<String, Object[]> moves = player.getActiveCard().getMoves();
+            ArrayList<String> moveOptions = new ArrayList<>();
+            int moveIndex = 1;
+            for (String moveName : moves.keySet()) {
+                moveOptions.add(moveIndex + ". " + moveName + ": " + Arrays.toString(moves.get(moveName)));
+                moveIndex++;
+            }
+            printOptions("Please select a move:", moveOptions.toArray(new String[0]));
+            if (opponent.getActiveCard().getCurrentHP() <= 0) throw new IllegalArgumentException("Can't attack when no opponent");
+            int selectedMove = getLegitNumber(1, moves.size()) - 1;
+            String moveName = new ArrayList<>(moves.keySet()).get(selectedMove);
+            boolean success = turn.useMove(moveName, player.getActiveCard(), opponent.getActiveCard());
+            if (!success) {
+                System.out.println("Your move failed due to confusion!");
+            } else {
+                System.out.println("You used " + moveName + " on " + opponent.getActiveCard().getName() + ".");
+                if (moves.get(moveName)[2] == Effect.Backrow) {
+                    printOptions("Please select a bench card to target:",
+                            "1. " + cardName(opponent.getBenchCard(1)),
+                            "2. " + cardName(opponent.getBenchCard(2)));
+                    int benchNumber = getLegitNumber(1, 2);
+                    Card targetCard = opponent.getBenchCard(benchNumber);
+                    targetCard.dealDamage((int) moves.get(moveName)[1], (Type) moves.get(moveName)[moves.get(moveName).length - 1], Condition.None);
+
+                }
+                if (moves.get(moveName)[2] == Effect.Swap) {
+                    printOptions("Please select a bench card to swap with:",
+                            "1. " + cardName(player.getBenchCard(1)),
+                            "2. " + cardName(player.getBenchCard(2)));
+                    int benchNumber = getLegitNumber(1, 2);
+                    player.swapActiveWithBench(benchNumber);
+                }
+            }
+        } else if (action == 2) {
+            printOptions("Please select a bench card to swap with:",
+                    "1. " + cardName(player.getBenchCard(1)),
+                    "2. " + cardName(player.getBenchCard(2)));
+            int benchNumber = getLegitNumber(1, 2);
+            turn.retreat(player.getActiveCard(), player, benchNumber);
+        } else if (action == 3) {
+            addEnergyToCard();
+        }
+    }
+
     private void addEnergyToCard() {
-        System.out.println("Select a card to add energy to:");
-        System.out.println("1. " + player.getActiveCard().getName());
-        System.out.println("2. " + player.getBenchCard(1).getName());
-        System.out.println("3. " + player.getBenchCard(2).getName());
+        printOptions("Select a card to add energy to:",
+                "1. " + cardName(player.getActiveCard()),
+                "2. " + cardName(player.getBenchCard(1)),
+                "3. " + cardName(player.getBenchCard(2)));
         int cardNumber = getLegitNumber(1, 3);
         if (cardNumber == 1) {
             turn.addEnergy(player.getActiveCard());
@@ -166,7 +179,6 @@ public class Game {
         } else if (cardNumber == 3) {
             turn.addEnergy(player.getBenchCard(2));
         }
-        turn.addEnergy(player.getActiveCard());
     }
 
     private void EstablishInitialActiveCards() {
@@ -176,18 +188,100 @@ public class Game {
         int cardIndex = getLegitNumber(1, player.getHand().length) - 1;
         Card playedCard = player.getHand()[cardIndex];
         player.setActiveCard(playedCard, cardIndex);
-        System.out.println("Your active card is: \n" + playedCard.toString());
+        System.out.println("Your active card is:\n" + playedCard);
         System.out.println("Please select your first bench card by entering the corresponding number:");
-        cardIndex = getLegitNumber(1, player.getHand().length) - 1;
+        cardIndex = -1;
+        while (cardIndex == -1) {
+            cardIndex = getLegitNumber(1, player.getHand().length) - 1;
+            if (player.getHand()[cardIndex] == null) {
+                System.out.println("You cannot select a card that has already been played. Please select a different card.");
+                cardIndex = -1;
+            }
+        }
         playedCard = player.getHand()[cardIndex];
         player.setBenchCard(playedCard, 1, cardIndex);
-        System.out.println("Your first bench card is: \n" + playedCard.toString());
+        System.out.println("Your first bench card is:\n" + playedCard);
         System.out.println("Please select your second bench card by entering the corresponding number:");
+        cardIndex = -1;
+        while (cardIndex == -1) {
+            cardIndex = getLegitNumber(1, player.getHand().length) - 1;
+            if (player.getHand()[cardIndex] == null) {
+                System.out.println("You cannot select a card that has already been played. Please select a different card.");
+                cardIndex = -1;
+            }
+        }
         cardIndex = getLegitNumber(1, player.getHand().length) - 1;
         playedCard = player.getHand()[cardIndex];
         player.setBenchCard(playedCard, 2, cardIndex);
-        System.out.println("Your second bench card is: \n" + playedCard.toString());
+        System.out.println("Your second bench card is:\n" + playedCard);
         player.drawCard();
+        System.out.println("Your new Hand is:");
+        printHand();
+    }
+
+    private void printOptions(String prompt, String... options) {
+        StringBuilder line = new StringBuilder(prompt);
+        for (String option : options) {
+            line.append(line.length() == prompt.length() ? " " : " | ").append(option);
+        }
+        System.out.println(line);
+    }
+
+    private String cardName(Card card) {
+        return card == null ? "(empty)" : card.getName();
+    }
+
+    private void printCards(String label, Card[] cards, String[] choices) {
+        StringBuilder heading = new StringBuilder(label);
+        for (String choice : choices) {
+            heading.append(heading.length() == label.length() ? " " : " | ").append(choice);
+        }
+        System.out.println(heading);
+
+        ArrayList<String[]> renderedCards = new ArrayList<>();
+        ArrayList<Integer> cardWidths = new ArrayList<>();
+        int rowCount = 0;
+        for (Card card : cards) {
+            if (card == null) {
+                renderedCards.add(new String[0]);
+                cardWidths.add(0);
+                continue;
+            }
+            String[] lines = card.toString().split("\n");
+            int cardWidth = 0;
+            for (String line : lines) {
+                cardWidth = Math.max(cardWidth, line.length());
+            }
+            renderedCards.add(lines);
+            cardWidths.add(cardWidth);
+            rowCount = Math.max(rowCount, lines.length);
+        }
+
+        int firstRowCardCount = renderedCards.size() > 3 ? renderedCards.size() / 2 : renderedCards.size();
+        printCardRow(renderedCards, cardWidths, 0, firstRowCardCount, rowCount);
+        if (firstRowCardCount < renderedCards.size()) {
+            System.out.println();
+            printCardRow(renderedCards, cardWidths, firstRowCardCount, renderedCards.size(), rowCount);
+        }
+    }
+
+    private void printCardRow(ArrayList<String[]> renderedCards, ArrayList<Integer> cardWidths,
+            int startIndex, int endIndex, int rowCount) {
+        for (int row = 0; row < rowCount; row++) {
+            StringBuilder line = new StringBuilder();
+            for (int cardIndex = startIndex; cardIndex < endIndex; cardIndex++) {
+                if (cardIndex > startIndex) {
+                    line.append("   ");
+                }
+                String[] cardLines = renderedCards.get(cardIndex);
+                String cardLine = row < cardLines.length ? cardLines[row] : "";
+                line.append(cardLine);
+                for (int padding = cardLine.length(); padding < cardWidths.get(cardIndex); padding++) {
+                    line.append(' ');
+                }
+            }
+            System.out.println(line);
+        }
     }
 
     private int getLegitNumber(int min, int max) {

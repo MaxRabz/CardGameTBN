@@ -92,7 +92,7 @@ public class Card {
     }
 
     public void addEnergy(int amount) {
-        if (this.energy + amount > this.maxEnergy || this.energy + amount < 0) throw new IllegalArgumentException();
+        if (this.energy + amount > this.maxEnergy || this.energy + amount < 0) throw new IllegalArgumentException("Added too much energy to this card");
         this.energy += amount;
     }
 
@@ -115,7 +115,7 @@ public class Card {
         if (moveDetails[2].equals(Effect.Recoil)) this.currentHP -= (int) moveDetails[3];
         if (moveDetails[2].equals(Effect.Heal)) this.currentHP += (int) moveDetails[3];
         if (currentHP > maxHp) currentHP = maxHp;
-        if (this.energy < (int) moveDetails[0]) throw new IllegalArgumentException();
+        if (this.energy < (int) moveDetails[0]) throw new IllegalArgumentException("Not enough energy to use this move");
         this.energy -= (int) moveDetails[0];
         Object[] returnDetails = Arrays.copyOf(moveDetails, moveDetails.length + 1);
         returnDetails[moveDetails.length] = this.typeOffensive;
@@ -127,26 +127,17 @@ public class Card {
         String hpLine = "HP: " + currentHP + "/" + maxHp;
         String nameLine = name;
         String offensiveTypeLine = typeOffensive.toString();
-        int contentWidth = Math.max(energyLine.length() + hpLine.length() + 1,
-                nameLine.length() + offensiveTypeLine.length() + 1);
-        for (Map.Entry<String, Object[]> move : moves.entrySet()) {
-            contentWidth = Math.max(contentWidth, move.getKey().length() + 1);
-            contentWidth = Math.max(contentWidth, getCardTextWidth("\t" + Arrays.toString(move.getValue())));
-        }
         String retreatLine = "Retreat Cost: " + retreatCost;
-        String resistLine = "Resist: " + typeResist;
-        String weakLine = "Weak: " + typeWeak;
-        contentWidth = Math.max(contentWidth, retreatLine.length());
-        contentWidth = Math.max(contentWidth, resistLine.length() + weakLine.length() + 1);
-
-        int cardWidth = contentWidth + 4;
-        String cardBorder = repeat('_', cardWidth);
-        String bottomBorder = "|" + repeat('_', cardWidth - 2) + "|";
+        String resistLine = "Resist " + typeResist;
+        String weakLine = "Weak " + typeWeak;
+        int cardWidth = 30;
+        int contentWidth = cardWidth - 4;
         int moveCount = moves.size();
-        int contentRows = 2 + moveCount * 2 + 2;
-        int spacerRows = Math.max(2, cardWidth * 2 - contentRows - 2);
+        int spacerRows = Math.max(0, 8 - moveCount * 2);
         int firstGapRows = spacerRows / 2;
         int secondGapRows = spacerRows - firstGapRows;
+        String cardBorder = repeat('_', cardWidth);
+        String bottomBorder = "|" + repeat('_', cardWidth - 2) + "|";
         StringBuilder cardDetails = new StringBuilder();
         cardDetails.append(cardBorder).append('\n');
         appendPairedCardLine(cardDetails, energyLine, hpLine, contentWidth);
@@ -154,7 +145,7 @@ public class Card {
         appendBlankCardRows(cardDetails, firstGapRows, contentWidth);
         for (Map.Entry<String, Object[]> move : moves.entrySet()) {
             appendCardLine(cardDetails, move.getKey() + ":", contentWidth);
-            appendCardLine(cardDetails, "\t" + Arrays.toString(move.getValue()), contentWidth);
+            appendCardLine(cardDetails, "    " + Arrays.toString(move.getValue()), contentWidth);
         }
         appendBlankCardRows(cardDetails, secondGapRows, contentWidth);
         appendCardLine(cardDetails, retreatLine, contentWidth);
@@ -175,25 +166,13 @@ public class Card {
     private void appendCardLine(StringBuilder cardDetails, String text, int contentWidth) {
         cardDetails.append("| ")
                 .append(text)
-                .append(repeat(' ', contentWidth - getCardTextWidth(text)))
+                .append(repeat(' ', contentWidth - text.length()))
                 .append(" |\n");
-    }
-
-    private int getCardTextWidth(String text) {
-        int column = 2;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '\t') {
-                column += 8 - column % 8;
-            } else {
-                column++;
-            }
-        }
-        return column - 2;
     }
 
     private void appendBlankCardRows(StringBuilder cardDetails, int count, int contentWidth) {
         String blankRow = "|" + repeat(' ', contentWidth + 2) + "|\n";
-        for (int i = 0; i < count/8; i++) {
+        for (int i = 0; i < count; i++) {
             cardDetails.append(blankRow);
         }
     }

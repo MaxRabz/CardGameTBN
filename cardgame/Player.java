@@ -94,11 +94,9 @@ public class Player {
 
     public Card drawCard() {
         if (this.deck.isEmpty()) return null;
-        Card drawnCard = this.deck.pop();
         for (int i = 0; i < this.hand.length; i++) {
             if (this.hand[i] == null) {
-                this.hand[i] = drawnCard;
-                return drawnCard;
+                this.hand[i] = this.deck.pop();
             }
         }
         return null;

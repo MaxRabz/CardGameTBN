@@ -59,7 +59,11 @@ public class Turn {
 
     public void retreat(Card card, Player player, int benchNumber) {
         int energyNeeded = card.getStatus().equals(Condition.Paralyze) ? card.getRetreatCost() * 2 : card.getRetreatCost();
-        card.addEnergy(-energyNeeded);
+        try {
+            card.addEnergy(-energyNeeded);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Not enough Energy to retreat");
+        }
         player.swapActiveWithBench(benchNumber);
     }
 
