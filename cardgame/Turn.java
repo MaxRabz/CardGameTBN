@@ -34,16 +34,16 @@ public class Turn {
         return 3;
     }
 
-    public void addEnergy(int amount, Card card) {
-        card.addEnergy(amount);
+    public void addEnergy(Card card) {
+        card.addEnergy(1);
     }
 
-    public void useMove(String moveName, Card card, Card target) {
+    public boolean useMove(String moveName, Card card, Card target) {
         Random ran = new Random();
         Object[] moveDetails = card.useMove(moveName);
         if (ran.nextBoolean() && card.getStatus().equals(Condition.Confusion)) {
             card.dealDamage((int) moveDetails[1], null, Condition.None);
-            return;
+            return false;
         }
         Condition status = Condition.None;
         if (moveDetails[2].equals(Effect.Burn)) status = Condition.Burn;
@@ -54,11 +54,13 @@ public class Turn {
         if (moveDetails[2].equals(Effect.Poison)) status = Condition.Poison;
         int halvedDamage = card.getStatus().equals(Condition.Burn) ? 2 : 1;
         target.dealDamage(((int) moveDetails[1]) / halvedDamage, (Type) moveDetails[moveDetails.length - 1], status);
+        return true;
     }
 
-    public void retreat(Card card) {
+    public void retreat(Card card, Player player, int benchNumber) {
         int energyNeeded = card.getStatus().equals(Condition.Paralyze) ? card.getRetreatCost() * 2 : card.getRetreatCost();
         card.addEnergy(-energyNeeded);
+        player.swapActiveWithBench(benchNumber);
     }
 
     public Card determineOrder(Card card1, Card card2) {

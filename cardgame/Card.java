@@ -32,7 +32,7 @@ public class Card {
         this.status = Condition.None;
         this.statusTurns = 0;
         this.energy = 0;
-        this.maxEnergy = maxHp/20 > 4 ? 4 : maxHp/20;
+        this.maxEnergy = maxHp/20 > 4 ? maxHp/20 : 4;
     }
 
     public String getName() {
