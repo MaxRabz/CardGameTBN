@@ -19,7 +19,7 @@ public class CreateDecks {
     public CreateDecks() {
         deck = new Card[] {
             new Card("Emberfox", 70, new HashMap<>() {{
-                put("Cinder Pounce", new Object[] {1, 40, Effect.Condition, 0});
+                put("Cinder Pounce", new Object[] {1, 40, Effect.Burn, 0});
             }}, 1, Type.Fire, Type.Grass, Type.Water),
             new Card("Tideback", 90, new HashMap<>() {{
                 put("Rushing Current", new Object[] {2, 50, Effect.Backrow, 10});
@@ -35,7 +35,7 @@ public class CreateDecks {
                 put("Tunnel Jab", new Object[] {1, 40, Effect.Swap, 0});
             }}, 1, Type.Ground, Type.Steel, Type.Grass),
             new Card("Scarlet Mantis", 100, new HashMap<>() {{
-                put("Petal Cutter", new Object[] {2, 60, Effect.Condition, 0});
+                put("Petal Cutter", new Object[] {2, 60, Effect.Paralyze, 0});
                 put("Wing Flick", new Object[] {1, 30, Effect.Backrow, 10});
             }}, 2, Type.Bug, Type.Grass, Type.Water),
             new Card("Flarehorn", 150, new HashMap<>() {{
@@ -55,7 +55,7 @@ public class CreateDecks {
                 put("Faultline Stomp", new Object[] {3, 90, Effect.Backrow, 20});
             }}, 4, Type.Ground, Type.Water, Type.Grass),
             new Card("Pollen Pixie", 70, new HashMap<>() {{
-                put("Nectar Dust", new Object[] {1, 30, Effect.Condition, 0});
+                put("Nectar Dust", new Object[] {1, 30, Effect.Sleep, 0});
                 put("Glimmer Heal", new Object[] {1, 20, Effect.Heal, 10});
             }}, 1, Type.Bug, Type.Grass, Type.Steel),
             new Card("Ashen Drake", 130, new HashMap<>() {{
@@ -71,7 +71,7 @@ public class CreateDecks {
         };
         deck2 = new Card[] {
             new Card("Cinder Lynx", 80, new HashMap<>() {{
-                put("Soot Swipe", new Object[] {1, 40, Effect.Condition, 0});
+                put("Soot Swipe", new Object[] {1, 40, Effect.Confusion, 0});
                 put("Coal Flick", new Object[] {1, 30, Effect.None, 0});
             }}, 1, Type.Fire, Type.Steel, Type.Water),
             new Card("Marshshell", 100, new HashMap<>() {{
@@ -90,14 +90,14 @@ public class CreateDecks {
                 put("Pebble Toss", new Object[] {1, 20, Effect.None, 0});
             }}, 1, Type.Ground, Type.Steel, Type.Water),
             new Card("Amber Cicada", 90, new HashMap<>() {{
-                put("Resonant Chirp", new Object[] {2, 50, Effect.Condition, 0});
+                put("Resonant Chirp", new Object[] {2, 50, Effect.Skip, 0});
             }}, 2, Type.Bug, Type.Grass, Type.Ground),
             new Card("Pyrestone Ram", 150, new HashMap<>() {{
                 put("Magma Headbutt", new Object[] {4, 100, Effect.Recoil, 20});
                 put("Scorch Trail", new Object[] {2, 60, Effect.Backrow, 10});
             }}, 4, Type.Fire, Type.Water, Type.Steel),
             new Card("Rainfin", 60, new HashMap<>() {{
-                put("Drizzle Shot", new Object[] {1, 20, Effect.Condition, 0});
+                put("Drizzle Shot", new Object[] {1, 20, Effect.Poison, 0});
             }}, 1, Type.Water, Type.Fire, Type.Bug),
             new Card("Brambleback", 140, new HashMap<>() {{
                 put("Thicket Crash", new Object[] {3, 90, Effect.Backrow, 20});
@@ -111,7 +111,7 @@ public class CreateDecks {
                 put("Canyon Quake", new Object[] {4, 100, Effect.Double, 0});
             }}, 4, Type.Ground, Type.Water, Type.Grass),
             new Card("Velvet Moth", 80, new HashMap<>() {{
-                put("Dusting Flutter", new Object[] {1, 40, Effect.Condition, 0});
+                put("Dusting Flutter", new Object[] {1, 40, Effect.Burn, 0});
                 put("Silk Patch", new Object[] {1, 20, Effect.Heal, 10});
             }}, 1, Type.Bug, Type.Grass, Type.Steel),
             new Card("Searclaw", 110, new HashMap<>() {{
@@ -123,7 +123,7 @@ public class CreateDecks {
                 put("Mist Veil", new Object[] {1, 40, Effect.Backrow, 10});
             }}, 2, Type.Water, Type.Steel, Type.Fire),
             new Card("Granite Scorpion", 130, new HashMap<>() {{
-                put("Faultline Sting", new Object[] {3, 80, Effect.Condition, 0});
+                put("Faultline Sting", new Object[] {3, 80, Effect.Paralyze, 0});
                 put("Stone Guard", new Object[] {1, 40, Effect.Recoil, 10});
             }}, 3, Type.Ground, Type.Bug, Type.Grass),
         };

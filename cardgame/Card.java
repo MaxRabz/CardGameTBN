@@ -16,6 +16,7 @@ public class Card {
     private Type typeResist;
     private Type typeWeak;
     private Condition status;
+    private int statusTurns;
     private int energy;
     private int maxEnergy;
 
@@ -29,6 +30,7 @@ public class Card {
         this.typeResist = typeResist;
         this.typeWeak = typeWeak;
         this.status = Condition.None;
+        this.statusTurns = 0;
         this.energy = 0;
         this.maxEnergy = maxHp/20 > 4 ? 4 : maxHp/20;
     }
@@ -61,6 +63,22 @@ public class Card {
         return status;
     }
 
+    public void removeStatus() {
+        this.status = Condition.None;
+    }
+
+    public int getStatusTurns() {
+        return this.statusTurns;
+    }
+
+    public void addStatusTurn() {
+        this.statusTurns++;
+    }
+
+    public void removeStatusTurns() {
+        this.statusTurns = 0;
+    }
+
     public int getRetreatCost() {
         return retreatCost;
     }
@@ -74,8 +92,8 @@ public class Card {
     }
 
     public void addEnergy(int amount) {
+        if (this.energy + amount > this.maxEnergy || this.energy + amount < 0) throw new IllegalArgumentException();
         this.energy += amount;
-        if (this.energy > this.maxEnergy) throw new IllegalArgumentException();
     }
 
     public int getMaxEnergy() {
@@ -83,10 +101,12 @@ public class Card {
     }
 
     public int dealDamage(int damage, Type attackType, Condition newStatus) {
-        if (attackType.equals(this.typeResist)) damage /=2;
-        if (attackType.equals(this.typeWeak)) damage *= 2;
+        if (attackType != null) {
+            if (attackType.equals(this.typeResist)) damage /=2;
+            if (attackType.equals(this.typeWeak)) damage *= 2;
+        }
         this.currentHP -= damage;
-        this.status = newStatus;
+        this.status = this.status == Condition.None ? newStatus : this.status;
         return this.currentHP;
     }
 
