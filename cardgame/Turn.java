@@ -38,12 +38,12 @@ public class Turn {
         card.addEnergy(1);
     }
 
-    public boolean useMove(String moveName, Card card, Card target) {
+    public int useMove(String moveName, Card card, Card target) {
         Random ran = new Random();
         Object[] moveDetails = card.useMove(moveName);
         if (ran.nextBoolean() && card.getStatus().equals(Condition.Confusion)) {
-            card.dealDamage((int) moveDetails[1], null, Condition.None);
-            return false;
+            card.dealDamage(((int) moveDetails[1]) / 2, null, Condition.None);
+            return ((int) moveDetails[1]) / 2;
         }
         Condition status = Condition.None;
         if (moveDetails[2].equals(Effect.Burn)) status = Condition.Burn;
@@ -52,9 +52,10 @@ public class Turn {
         if (moveDetails[2].equals(Effect.Confusion)) status = Condition.Confusion;
         if (moveDetails[2].equals(Effect.Skip)) status = Condition.Skip;
         if (moveDetails[2].equals(Effect.Poison)) status = Condition.Poison;
-        int halvedDamage = card.getStatus().equals(Condition.Burn) ? 2 : 1;
-        target.dealDamage(((int) moveDetails[1]) / halvedDamage, (Type) moveDetails[moveDetails.length - 1], status);
-        return true;
+        int damage = moveDetails[2].equals(Effect.Double) && card.getCurrentHP() != card.getMaxHP() ? ((int) moveDetails[1]) *2 : (int) moveDetails[1];
+        damage = card.getStatus().equals(Condition.Burn) ? damage / 2 : damage;
+        target.dealDamage(damage, (Type) moveDetails[moveDetails.length - 1], status);
+        return damage;
     }
 
     public void retreat(Card card, Player player, int benchNumber) {

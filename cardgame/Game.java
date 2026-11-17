@@ -133,11 +133,11 @@ public class Game {
             if (opponent.getActiveCard().getCurrentHP() <= 0) throw new IllegalArgumentException("Can't attack when no opponent");
             int selectedMove = getLegitNumber(1, moves.size()) - 1;
             String moveName = new ArrayList<>(moves.keySet()).get(selectedMove);
-            boolean success = turn.useMove(moveName, player.getActiveCard(), opponent.getActiveCard());
-            if (!success) {
-                System.out.println("Your move failed due to confusion!");
+            int damageDealt = turn.useMove(moveName, player.getActiveCard(), opponent.getActiveCard());
+            if (damageDealt == ((int) moves.get(moveName)[1]) / 2) {
+                System.out.println("Your move failed due to confusion! you dealt " + damageDealt + " damage to yourself.");
             } else {
-                System.out.println("You used " + moveName + " on " + opponent.getActiveCard().getName() + ".");
+                System.out.println("You used " + moveName + " on " + opponent.getActiveCard().getName() + ". You dealt " + damageDealt + " damage.");
                 if (moves.get(moveName)[2] == Effect.Backrow) {
                     printOptions("Please select a bench card to target:",
                             "1. " + cardName(opponent.getBenchCard(1)),
@@ -153,6 +153,12 @@ public class Game {
                             "2. " + cardName(player.getBenchCard(2)));
                     int benchNumber = getLegitNumber(1, 2);
                     player.swapActiveWithBench(benchNumber);
+                }
+                if (moves.get(moveName)[2] == Effect.Recoil) {
+                    System.out.println("You took " + (int) moves.get(moveName)[3] + " recoil damage.");
+                }
+                if (opponent.getActiveCard().getCurrentHP() <= 0) {
+                    System.out.println("Your opponent's active card has been defeated!");
                 }
             }
         } else if (action == 2) {
@@ -210,7 +216,6 @@ public class Game {
                 cardIndex = -1;
             }
         }
-        cardIndex = getLegitNumber(1, player.getHand().length) - 1;
         playedCard = player.getHand()[cardIndex];
         player.setBenchCard(playedCard, 2, cardIndex);
         System.out.println("Your second bench card is:\n" + playedCard);
