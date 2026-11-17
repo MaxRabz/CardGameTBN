@@ -144,8 +144,8 @@ public class Game {
                             "2. " + cardName(opponent.getBenchCard(2)));
                     int benchNumber = getLegitNumber(1, 2);
                     Card targetCard = opponent.getBenchCard(benchNumber);
-                    targetCard.dealDamage((int) moves.get(moveName)[1], (Type) moves.get(moveName)[moves.get(moveName).length - 1], Condition.None);
-
+                    targetCard.dealDamage((int) moves.get(moveName)[3], (Type) moves.get(moveName)[moves.get(moveName).length - 1], Condition.None);
+                    System.out.println("You dealt " + (int) moves.get(moveName)[3] + " damage to " + targetCard.getName() + ".");
                 }
                 if (moves.get(moveName)[2] == Effect.Swap) {
                     printOptions("Please select a bench card to swap with:",
