@@ -123,18 +123,86 @@ public class Card {
     }
 
     public String toString() {
-        String cardDetails = "______________________\n";
-        cardDetails += "| Energy: " + energy + "/" + maxEnergy + " |\n";
-        cardDetails += "|"+name+ " " + typeOffensive + " HP:" + currentHP + "/" + maxHp + "\n";
-        cardDetails += "|                    |\n";
-        cardDetails += "|____________________|\n";
+        String energyLine = "Energy: " + energy + "/" + maxEnergy;
+        String hpLine = "HP: " + currentHP + "/" + maxHp;
+        String nameLine = name;
+        String offensiveTypeLine = typeOffensive.toString();
+        int contentWidth = Math.max(energyLine.length() + hpLine.length() + 1,
+                nameLine.length() + offensiveTypeLine.length() + 1);
         for (Map.Entry<String, Object[]> move : moves.entrySet()) {
-            cardDetails += "| " + move.getKey() + " " + Arrays.toString(move.getValue()) + " |\n";
+            contentWidth = Math.max(contentWidth, move.getKey().length() + 1);
+            contentWidth = Math.max(contentWidth, getCardTextWidth("\t" + Arrays.toString(move.getValue())));
         }
-        cardDetails += "|____________________|\n";
-        cardDetails += "| Retreat Cost: " + retreatCost + " |\n";
-        cardDetails += "| " + typeResist + " " + typeWeak + " |\n";
-        cardDetails += "|____________________|\n";
-        return cardDetails;
+        String retreatLine = "Retreat Cost: " + retreatCost;
+        String resistLine = "Resist: " + typeResist;
+        String weakLine = "Weak: " + typeWeak;
+        contentWidth = Math.max(contentWidth, retreatLine.length());
+        contentWidth = Math.max(contentWidth, resistLine.length() + weakLine.length() + 1);
+
+        int cardWidth = contentWidth + 4;
+        String cardBorder = repeat('_', cardWidth);
+        String bottomBorder = "|" + repeat('_', cardWidth - 2) + "|";
+        int moveCount = moves.size();
+        int contentRows = 2 + moveCount * 2 + 2;
+        int spacerRows = Math.max(2, cardWidth * 2 - contentRows - 2);
+        int firstGapRows = spacerRows / 2;
+        int secondGapRows = spacerRows - firstGapRows;
+        StringBuilder cardDetails = new StringBuilder();
+        cardDetails.append(cardBorder).append('\n');
+        appendPairedCardLine(cardDetails, energyLine, hpLine, contentWidth);
+        appendPairedCardLine(cardDetails, nameLine, offensiveTypeLine, contentWidth);
+        appendBlankCardRows(cardDetails, firstGapRows, contentWidth);
+        for (Map.Entry<String, Object[]> move : moves.entrySet()) {
+            appendCardLine(cardDetails, move.getKey() + ":", contentWidth);
+            appendCardLine(cardDetails, "\t" + Arrays.toString(move.getValue()), contentWidth);
+        }
+        appendBlankCardRows(cardDetails, secondGapRows, contentWidth);
+        appendCardLine(cardDetails, retreatLine, contentWidth);
+        appendPairedCardLine(cardDetails, resistLine, weakLine, contentWidth);
+        cardDetails.append(bottomBorder);
+        return cardDetails.toString();
+    }
+
+    private void appendPairedCardLine(StringBuilder cardDetails, String leftText, String rightText, int contentWidth) {
+        int spacing = contentWidth - leftText.length() - rightText.length();
+        cardDetails.append("| ")
+                .append(leftText)
+                .append(repeat(' ', spacing))
+                .append(rightText)
+                .append(" |\n");
+    }
+
+    private void appendCardLine(StringBuilder cardDetails, String text, int contentWidth) {
+        cardDetails.append("| ")
+                .append(text)
+                .append(repeat(' ', contentWidth - getCardTextWidth(text)))
+                .append(" |\n");
+    }
+
+    private int getCardTextWidth(String text) {
+        int column = 2;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '\t') {
+                column += 8 - column % 8;
+            } else {
+                column++;
+            }
+        }
+        return column - 2;
+    }
+
+    private void appendBlankCardRows(StringBuilder cardDetails, int count, int contentWidth) {
+        String blankRow = "|" + repeat(' ', contentWidth + 2) + "|\n";
+        for (int i = 0; i < count/8; i++) {
+            cardDetails.append(blankRow);
+        }
+    }
+
+    private String repeat(char character, int count) {
+        StringBuilder repeated = new StringBuilder(count);
+        for (int i = 0; i < count; i++) {
+            repeated.append(character);
+        }
+        return repeated.toString();
     }
 }
