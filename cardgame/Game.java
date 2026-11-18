@@ -49,6 +49,11 @@ public class Game {
                 opponent.replaceDeadCard();
             }
         }
+        if (player.getDeadCards() >= 10) {
+            System.out.println("You have lost the game. Your opponent has won.");
+        } else {
+            System.out.println("Congratulations! You have won the game.");
+        }
     }
 
     private void replaceDeadCard() {
