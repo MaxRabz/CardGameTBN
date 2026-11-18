@@ -25,7 +25,7 @@ public class Game {
         this.opponent.establishStartingCards();
         int turnsPassed = 1;
         while (player.getDeadCards() < 10 && opponent.getDeadCards() < 10) {
-            System.out.println("Turn #" + turnsPassed);
+            System.out.println("Turn #" + turnsPassed + ". You have lost " + player.getDeadCards() + " cards. Your opponent has lost " + opponent.getDeadCards() + " cards.");
             Card result = turn.determineOrder(player.getActiveCard(), opponent.getActiveCard());
             System.out.println("The order of play is: " + result.getName() + " goes first.");
             if (player.getActiveCard().equals(result)) {
@@ -108,8 +108,8 @@ public class Game {
                 addEnergyToCard();
                 continue;
             }
-            printOptions("Please select an action:", "1. Use Move", "2. Retreat", "3. Add Energy");
-            int action = getLegitNumber(1, 3);
+            printOptions("Please select an action:", "1. Use Move", "2. Retreat", "3. Add Energy", "4. View Hand", "5. View Rules");
+            int action = getLegitNumber(1, 5);
             try {
                 playAction(action);
             } catch (IllegalArgumentException e) {
@@ -169,6 +169,10 @@ public class Game {
             turn.retreat(player.getActiveCard(), player, benchNumber);
         } else if (action == 3) {
             addEnergyToCard();
+        } else if (action == 4) {
+            printHand();
+        } else if (action == 5) {
+            System.out.println("Rules: Each player has a deck of cards. Each card has a type, HP, energy, and moves. Players take turns using moves to deal damage to the opponent's active card. When a card's HP reaches 0, it is defeated and removed from play. Players can also retreat their active card to swap with a bench card. The game ends when one player has lost 10 cards.");
         }
     }
 
